@@ -1,0 +1,193 @@
+/* Base Styles - Optimized for low-end phones */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+/* Screen Management */
+.screen {
+    display: none;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.screen.active {
+    display: block;
+}
+
+/* Login Screen */
+.login-container {
+    max-width: 300px;
+    margin: 50px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.pin-input input {
+    width: 100%;
+    padding: 15px;
+    font-size: 24px;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    padding: 10px 0;
+    border-top: 1px solid #ddd;
+    z-index: 1000;
+}
+
+.nav-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.nav-btn.active {
+    color: #2ecc71;
+}
+
+/* Main Content */
+#main-content {
+    padding: 20px;
+    padding-bottom: 70px; /* Space for bottom nav */
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+}
+
+/* Cards */
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Buttons */
+.btn {
+    background: #2ecc71;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+}
+
+/* POS Styles */
+.pos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.product-card.selected {
+    border-color: #2ecc71;
+}
+
+/* FABs */
+.fab {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: #2ecc71;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 999;
+}
+
+.calc-fab {
+    bottom: 150px;
+    background: #3498db;
+}
+
+/* Receipt Printing */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .receipt {
+        font-size: 12px;
+        padding: 10px;
+    }
+}
+
+/* Large touch targets for non-tech users */
+button, input, select {
+    min-height: 44px; /* Apple's recommended touch target */
+}
+
+/* Offline indicator */
+.offline-banner {
+    background: #e74c3c;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+}

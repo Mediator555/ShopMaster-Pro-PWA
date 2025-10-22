@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ShopMaster Admin - Remote Support</title>
+    <style>
+        .shop-card { border: 1px solid #ddd; padding: 15px; margin: 10px; }
+        .online { border-left: 5px solid #2ecc71; }
+        .offline { border-left: 5px solid #e74c3c; }
+    </style>
+</head>
+<body>
+    <h1>ShopMaster Remote Support</h1>
+    
+    <div id="shops-list">
+        <!-- Shops will appear here -->
+    </div>
+    
+    <script>
+        // Your admin panel to monitor all shops
+        async function loadShops() {
+            const { data: shops } = await supabase.from('shops').select('*');
+            
+            shops.forEach(shop => {
+                const shopCard = `
+                    <div class="shop-card ${shop.last_sync ? 'online' : 'offline'}">
+                        <h3>${shop.shop_name}</h3>
+                        <p>Owner: ${shop.owner_name}</p>
+                        <p>Phone: ${shop.phone}</p>
+                        <p>Last Sync: ${shop.last_sync || 'Never'}</p>
+                        <button onclick="remoteSupport('${shop.id}')">Remote Support</button>
+                    </div>
+                `;
+                document.getElementById('shops-list').innerHTML += shopCard;
+            });
+        }
+        
+        function remoteSupport(shopId) {
+            // Implement remote support features
+            console.log('Connecting to shop:', shopId);
+        }
+        
+        loadShops();
+    </script>
+</body>
+</html>

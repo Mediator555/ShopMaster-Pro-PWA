@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopMaster Pro - Local Shop MIS</title>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2ecc71">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Login Screen */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .login-container h1 {
+            margin-bottom: 10px;
+            color: #2ecc71;
+        }
+
+        .pin-input {
+            margin: 25px 0;
+        }
+
+        .pin-input input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        button:hover {
+            background: #27ae60;
+        }
+
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .help-text {
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        /* Main App */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+        }
+
+        .nav-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-btn.active {
+            color: #2ecc71;
+        }
+
+        #main-content {
+            padding: 20px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Calculator */
+        #floating-calculator {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            background: rgba(18, 18, 18, 0.901);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+        }
+
+        #floating-calculator.visible {
+            display: block;
+        }
+
+        .calculator-header {
+            background: #25d742;
+            color: rgba(112, 93, 81, 0.93);
+            padding: 12px 15px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calculator-display {
+            padding: 15px;
+            background: #365196;
+            border-bottom: 1px solid #3b3131;
+        }
+
+        #calc-display {
+            width: 100%;
+            border: none;
+            background: none;
+            font-size: 24px;
+            text-align: right;
+        }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: #0e113eec;
+        }
+
+        .calc-btn {
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            background: rgba(50, 47, 47, 0.904);
+            cursor: pointer;
+        }
+
+        .floating-trigger {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #447d1b;
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        /* Print Styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .modal-content {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 20px !important;
+            }
+            
+            .invoice-container {
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+            }
+            
+            body {
+                background: white !important;
+                font-size: 12pt !important;
+            }
+            
+            button {
+                display: none !important;
+            }
+        }
+        
+        .invoice-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 20px auto;
+            font-family: Arial, sans-serif;
+        }
+        
+        .invoice-header {
+            text-align: center;
+            border-bottom: 2px solid #2ecc71;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .invoice-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .invoice-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .invoice-items th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .invoice-items td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .invoice-total {
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+        
+        /* POS Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .product-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .product-card:hover {
+            border-color: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-card:active {
+            transform: translateY(0);
+        }
+
+        .product-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .product-price {
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .product-stock {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        .product-stock.low {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* Sale Items */
+        .sale-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .sale-item-info {
+            flex: 1;
+        }
+
+        .sale-item-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .sale-item-details {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        .sale-item-total {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #e74c3c;
+        }
+
+        /* Debt History Styles */
+        .debt-history {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .history-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Export Reports */
+        .export-section {
+            margin: 20px 0;
+        }
+
+        .export-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <h1>🏪 ShopMaster Pro</h1>
+            <p>Enter your 4-digit PIN</p>
+            <div class="pin-input">
+                <input type="password" maxlength="4" id="pin-code" placeholder="****" onkeypress="handlePinKeypress(event)">
+            </div>
+            <button onclick="login()">Enter Shop</button>
+            <p class="help-text">Try PIN: 1234 (Test Shop)</p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app-screen" class="screen">
+        <nav class="bottom-nav">
+            <button class="nav-btn active" onclick="loadPage('dashboard')">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-btn" onclick="loadPage('pos')">
+                <span>💰</span>
+                <span>POS</span>
+            </button>
+            <button class="nav-btn" onclick="loadPage('inventory')">
+                <span>📦</span>
+                <span>Stock</span>
+            </button>
+            <button class="nav-btn" onclick="loadPage('debts')">
+                <span>👥</span>
+                <span>Debts</span>
+            </button>
+            <button class="nav-btn" onclick="loadPage('admin')">
+                <span>⚙️</span>
+                <span>Settings</span>
+            </button>
+        </nav>
+
+        <main id="main-content">
+            <div class="card">
+                <h2>Welcome to ShopMaster Pro!</h2>
+                <p>Select a section from the navigation below to get started.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Calculator -->
+    <div id="floating-calculator">
+        <div class="calculator-header">
+            <span>🧮 Calculator</span>
+            <button onclick="hideCalculator()" class="calc-close">×</button>
+        </div>
+        <div class="calculator-display">
+            <input type="text" id="calc-display" readonly value="0">
+        </div>
+        <div class="calculator-buttons">
+            <button class="calc-btn" onclick="calculatorClear()">C</button>
+            <button class="calc-btn" onclick="calculatorBackspace()">⌫</button>
+            <button class="calc-btn" onclick="calculatorOperation('/')">/</button>
+            <button class="calc-btn" onclick="calculatorOperation('*')">×</button>
+            
+            <button class="calc-btn" onclick="calculatorInput('7')">7</button>
+            <button class="calc-btn" onclick="calculatorInput('8')">8</button>
+            <button class="calc-btn" onclick="calculatorInput('9')">9</button>
+            <button class="calc-btn" onclick="calculatorOperation('-')">-</button>
+            
+            <button class="calc-btn" onclick="calculatorInput('4')">4</button>
+            <button class="calc-btn" onclick="calculatorInput('5')">5</button>
+            <button class="calc-btn" onclick="calculatorInput('6')">6</button>
+            <button class="calc-btn" onclick="calculatorOperation('+')">+</button>
+            
+            <button class="calc-btn" onclick="calculatorInput('1')">1</button>
+            <button class="calc-btn" onclick="calculatorInput('2')">2</button>
+            <button class="calc-btn" onclick="calculatorInput('3')">3</button>
+            <button class="calc-btn" onclick="calculatorCalculate()" style="grid-row: span 2;">=</button>
+            
+            <button class="calc-btn" onclick="calculatorInput('0')" style="grid-column: span 2;">0</button>
+            <button class="calc-btn" onclick="calculatorInput('.')">.</button>
+        </div>
+    </div>
+
+    <button class="floating-trigger" onclick="toggleCalculator()">🧮</button>
+
+    <!-- External JS Files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        // ===== DATA STORAGE & INITIALIZATION =====
+        const TEST_SHOPS = [
+            { 
+                id: 1, 
+                shop_name: "Test Shop Kigali", 
+                owner_name: "Jean Bosco", 
+                pin_code: "1234", 
+                phone: "250788123456" 
+            }
+        ];
+
+        // Initialize data from localStorage or use defaults
+        let products = JSON.parse(localStorage.getItem('shopmaster_products')) || [
+            { id: 1, name: "Rice 5kg", price: 5000, stock: 25, category: "food" },
+            { id: 2, name: "Beans 1kg", price: 1500, stock: 30, category: "food" },
+            { id: 3, name: "Sugar 1kg", price: 1800, stock: 20, category: "food" },
+            { id: 4, name: "Cooking Oil 1L", price: 3500, stock: 15, category: "food" },
+            { id: 5, name: "Soap", price: 800, stock: 50, category: "non-food" },
+            { id: 6, name: "Toothpaste", price: 1200, stock: 25, category: "non-food" }
+        ];
+
+        let sales = JSON.parse(localStorage.getItem('shopmaster_sales')) || [];
+        let debts = JSON.parse(localStorage.getItem('shopmaster_debts')) || [];
+        let currentSale = [];
+        let currentShop = null;
+
+        // ===== DATA PERSISTENCE FUNCTIONS =====
+        function saveData() {
+            localStorage.setItem('shopmaster_products', JSON.stringify(products));
+            localStorage.setItem('shopmaster_sales', JSON.stringify(sales));
+            localStorage.setItem('shopmaster_debts', JSON.stringify(debts));
+            localStorage.setItem('shopmaster_shop', JSON.stringify(currentShop));
+            console.log('Data saved successfully');
+        }
+
+        function loadData() {
+            const savedShop = localStorage.getItem('shopmaster_shop');
+            if (savedShop) {
+                currentShop = JSON.parse(savedShop);
+            }
+        }
+
+        // ===== SIMPLE LOGIN SYSTEM =====
+        function login() {
+            const pinInput = document.getElementById('pin-code');
+            const pin = pinInput.value;
+            
+            if (pin.length !== 4) {
+                alert('Please enter 4-digit PIN');
+                return;
+            }
+
+            const shop = TEST_SHOPS.find(s => s.pin_code === pin);
+            
+            if (shop) {
+                showApp(shop);
+            } else {
+                alert('Invalid PIN. Try: 1234');
+            }
+        }
+
+        function handlePinKeypress(event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        }
+
+        function showApp(shop) {
+            document.getElementById('login-screen').classList.remove('active');
+            document.getElementById('app-screen').classList.add('active');
+            window.currentShop = shop;
+            currentShop = shop;
+            saveData();
+            loadPage('dashboard');
+        }
+
+        // ===== COMPLETE PAGE MANAGEMENT =====
+        function loadPage(page) {
+            const mainContent = document.getElementById('main-content');
+            if (!mainContent) return;
+            
+            // Update active nav
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show loading briefly
+            mainContent.innerHTML = '<div class="loading">Loading...</div>';
+
+            // Load page content immediately (no async delays)
+            setTimeout(() => {
+                let html = '';
+                
+                switch(page) {
+                    case 'dashboard':
+                        html = renderDashboard();
+                        break;
+                    case 'pos':
+                        html = renderPOS();
+                        break;
+                    case 'inventory':
+                        html = renderInventory();
+                        break;
+                    case 'debts':
+                        html = renderDebts();
+                        break;
+                    case 'admin':
+                        html = renderAdmin();
+                        break;
+                }
+                
+                mainContent.innerHTML = html;
+                
+                // Attach event listeners for the current page
+                attachPageEvents(page);
+            }, 100);
+        }
+
+        function attachPageEvents(page) {
+            if (page === 'pos') {
+                const paymentMethod = document.getElementById('payment-method');
+                if (paymentMethod) {
+                    paymentMethod.addEventListener('change', function() {
+                        const customerCreditInfo = document.getElementById('customer-credit-info');
+                        if (customerCreditInfo) {
+                            customerCreditInfo.style.display = this.value === 'credit' ? 'block' : 'none';
+                        }
+                    });
+                }
+
+                // Add click event for print button
+                const printBtn = document.getElementById('print-invoice-btn');
+                if (printBtn) {
+                    printBtn.addEventListener('click', printInvoice);
+                }
+            }
+        }
+
+        // ===== DASHBOARD =====
+        function renderDashboard() {
+            const totalSales = sales.reduce((sum, sale) => sum + (sale.total || 0), 0);
+            const totalDebts = debts.reduce((sum, debt) => sum + (debt.amount || 0), 0);
+            const lowStockProducts = products.filter(p => (p.stock || 0) < 10).length;
+
+            return `
+                <div class="card">
+                    <h2>📊 Dashboard</h2>
+                    <p>Welcome to <strong>${currentShop?.shop_name || 'Shop'}</strong></p>
+                </div>
+                
+                <div class="card">
+                    <h3>📈 Quick Stats</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                        <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #2ecc71;">${products.length}</div>
+                            <div>Total Products</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #e8f4ff; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #3498db;">${totalSales.toLocaleString()} RWF</div>
+                            <div>Total Sales</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #fff3e8; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #e67e22;">${totalDebts.toLocaleString()} RWF</div>
+                            <div>Pending Debts</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #ffe8e8; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #e74c3c;">${lowStockProducts}</div>
+                            <div>Low Stock Items</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 Quick Actions</h3>
+                    <div class="quick-actions">
+                        <button onclick="loadPage('pos')">💰 New Sale</button>
+                        <button onclick="loadPage('inventory')">📦 Manage Stock</button>
+                        <button onclick="loadPage('debts')">👥 Track Debts</button>
+                        <button onclick="loadPage('admin')">⚙️ Settings</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>📊 Export Reports</h3>
+                    <div class="export-buttons">
+                        <button onclick="exportStockPDF()">📦 Stock Report</button>
+                        <button onclick="exportSalesPDF()">💰 Sales Report</button>
+                        <button onclick="exportDebtsPDF()">👥 Debts Report</button>
+                        <button onclick="exportDailyReport()">📅 Daily Report</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== COMPLETE POS SYSTEM =====
+        function renderPOS() {
+            return `
+                <div class="card">
+                    <h2>💰 Point of Sale</h2>
+                    <p>Add products to cart and process sales</p>
+                </div>
+
+                <div class="card">
+                    <h3>🛒 Current Sale</h3>
+                    
+                    <!-- Customer Name Field (Always Visible) -->
+                    <div class="form-group">
+                        <label>Customer Name (Optional - for invoice):</label>
+                        <input type="text" id="customer-name" placeholder="Enter customer name for invoice" 
+                               style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+
+                    <div id="sale-items" style="min-height: 100px; margin: 15px 0;">
+                        ${currentSale.length === 0 ? 
+                            '<p style="text-align: center; color: #7f8c8d; padding: 20px;">No items added yet</p>' : 
+                            renderSaleItems()}
+                    </div>
+                    <div style="border-top: 2px solid #eee; padding-top: 15px;">
+                        <h3>Total: <span id="sale-total">${calculateSaleTotal().toLocaleString()}</span> RWF</h3>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <select id="payment-method" style="width: 100%; padding: 10px; margin: 10px 0;">
+                            <option value="cash">💵 Cash</option>
+                            <option value="momo">📱 Mobile Money</option>
+                            <option value="credit">📝 Credit</option>
+                        </select>
+                        
+                        <div id="customer-credit-info" style="display: none;">
+                            <input type="tel" id="customer-phone" placeholder="Phone Number (for credit)" style="width: 100%; padding: 10px; margin: 5px 0;">
+                        </div>
+
+                        <button onclick="processSale()" style="background: #2ecc71; margin: 5px 0;">✅ Complete Sale</button>
+                        <button onclick="clearSale()" style="background: #e74c3c; margin: 5px 0;">🗑️ Clear Sale</button>
+                        <button onclick="printInvoice()" id="print-invoice-btn" style="background: #3498db; margin: 5px 0;" ${currentSale.length === 0 ? 'disabled' : ''}>
+                            🖨️ Print Invoice
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📦 Available Products</h3>
+                    <div class="product-grid">
+                        ${products.map(product => `
+                            <div class="product-card" onclick="addToSale(${product.id})">
+                                <div class="product-name">${product.name}</div>
+                                <div class="product-price">${(product.price || 0).toLocaleString()} RWF</div>
+                                <div class="product-stock ${product.stock < 10 ? 'low' : ''}">
+                                    Stock: ${product.stock || 0}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSaleItems() {
+            return currentSale.map(item => `
+                <div class="sale-item">
+                    <div class="sale-item-info">
+                        <div class="sale-item-name">${item.name}</div>
+                        <div class="sale-item-details">
+                            ${item.price.toLocaleString()} RWF × ${item.quantity}
+                        </div>
+                    </div>
+                    <div class="sale-item-total">
+                        ${(item.price * item.quantity).toLocaleString()} RWF
+                    </div>
+                    <button class="remove-btn" onclick="removeFromSale(${item.id})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function calculateSaleTotal() {
+            return currentSale.reduce((total, item) => total + (item.price * item.quantity), 0);
+        }
+
+        function addToSale(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existingItem = currentSale.find(item => item.id === productId);
+            
+            if (existingItem) {
+                if (existingItem.quantity < product.stock) {
+                    existingItem.quantity += 1;
+                } else {
+                    alert(`Only ${product.stock} items left in stock!`);
+                    return;
+                }
+            } else {
+                if (product.stock > 0) {
+                    currentSale.push({
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        quantity: 1
+                    });
+                } else {
+                    alert('Product out of stock!');
+                    return;
+                }
+            }
+
+            updatePOSDisplay();
+        }
+
+        function removeFromSale(productId) {
+            currentSale = currentSale.filter(item => item.id !== productId);
+            updatePOSDisplay();
+        }
+
+        function updatePOSDisplay() {
+            const saleItems = document.getElementById('sale-items');
+            const saleTotal = document.getElementById('sale-total');
+            const printBtn = document.getElementById('print-invoice-btn');
+            
+            if (saleItems) {
+                saleItems.innerHTML = currentSale.length === 0 ? 
+                    '<p style="text-align: center; color: #7f8c8d; padding: 20px;">No items added yet</p>' : 
+                    renderSaleItems();
+            }
+            
+            if (saleTotal) {
+                saleTotal.textContent = calculateSaleTotal().toLocaleString();
+            }
+
+            if (printBtn) {
+                printBtn.disabled = currentSale.length === 0;
+            }
+        }
+
+        function processSale() {
+            if (currentSale.length === 0) {
+                alert('Please add products to the sale');
+                return;
+            }
+
+            const paymentMethod = document.getElementById('payment-method')?.value || 'cash';
+            const total = calculateSaleTotal();
+            const customerName = document.getElementById('customer-name')?.value || 'Walk-in Customer';
+
+            // Validate credit sale
+            if (paymentMethod === 'credit') {
+                const customerPhone = document.getElementById('customer-phone')?.value;
+                if (!customerPhone) {
+                    alert('Please enter customer phone number for credit sale');
+                    return;
+                }
+            }
+
+            // Record sale
+            const saleId = Date.now();
+            const sale = {
+                id: saleId,
+                items: [...currentSale],
+                total: total,
+                paymentMethod: paymentMethod,
+                customerName: customerName,
+                customerPhone: paymentMethod === 'credit' ? document.getElementById('customer-phone')?.value : null,
+                date: new Date().toLocaleDateString('en-RW'),
+                timestamp: new Date().toISOString()
+            };
+            
+            sales.push(sale);
+
+            // Update stock
+            currentSale.forEach(saleItem => {
+                const product = products.find(p => p.id === saleItem.id);
+                if (product) {
+                    product.stock -= saleItem.quantity;
+                }
+            });
+
+            // Record debt if credit sale
+            if (paymentMethod === 'credit') {
+                const debtId = Date.now();
+                const newDebt = {
+                    id: debtId,
+                    customerName: customerName,
+                    customerPhone: document.getElementById('customer-phone')?.value,
+                    amount: total,
+                    date: new Date().toLocaleDateString('en-RW'),
+                    status: 'pending',
+                    reason: 'POS Sale',
+                    history: [{
+                        date: new Date().toLocaleString('en-RW'),
+                        amount: total,
+                        type: 'added',
+                        reason: 'Initial credit sale'
+                    }]
+                };
+                debts.push(newDebt);
+            }
+
+            // Save data
+            saveData();
+
+            alert(`✅ Sale completed successfully!\nTotal: ${total.toLocaleString()} RWF\nPayment: ${paymentMethod}`);
+            
+            // Store current sale for printing
+            window.lastSale = sale;
+            
+            clearSale();
+            loadPage('dashboard');
+        }
+
+        function clearSale() {
+            currentSale = [];
+            updatePOSDisplay();
+        }
+
+        // ===== PRINT INVOICE FUNCTIONALITY =====
+        function printInvoice() {
+            if (currentSale.length === 0 && !window.lastSale) {
+                alert('No sale to print. Please complete a sale first.');
+                return;
+            }
+
+            const saleToPrint = window.lastSale || {
+                id: 'TEMP_' + Date.now(),
+                items: [...currentSale],
+                total: calculateSaleTotal(),
+                paymentMethod: document.getElementById('payment-method')?.value || 'cash',
+                date: new Date().toLocaleDateString('en-RW'),
+                customerName: document.getElementById('customer-name')?.value || 'Walk-in Customer',
+                customerPhone: document.getElementById('customer-phone')?.value || ''
+            };
+
+            showPrintModal(saleToPrint);
+        }
+
+        function showPrintModal(sale) {
+            const printHTML = generateInvoiceHTML(sale);
+            showModal(printHTML);
+        }
+
+        function generateInvoiceHTML(sale) {
+            const shop = currentShop || { shop_name: 'Shop', phone: 'N/A' };
+            
+            return `
+                <div class="invoice-container">
+                    <div class="invoice-header">
+                        <h1>${shop.shop_name}</h1>
+                        <p>INVOICE</p>
+                        <p>Date: ${sale.date}</p>
+                        <p>Invoice #: ${sale.id}</p>
+                    </div>
+                    
+                    <div class="invoice-details">
+                        <div>
+                            <h3>Shop Details</h3>
+                            <p><strong>${shop.shop_name}</strong></p>
+                            <p>${shop.phone}</p>
+                        </div>
+                        <div>
+                            <h3>Customer Details</h3>
+                            <p>Name: <strong>${sale.customerName || 'Walk-in Customer'}</strong></p>
+                            ${sale.customerPhone ? `<p>Phone: ${sale.customerPhone}</p>` : ''}
+                            <p>Date: ${sale.date}</p>
+                        </div>
+                    </div>
+                    
+                    <table class="invoice-items">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sale.items.map(item => `
+                                <tr>
+                                    <td>${item.name}</td>
+                                    <td>${item.price.toLocaleString()} RWF</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${(item.price * item.quantity).toLocaleString()} RWF</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    
+                    <div class="invoice-total">
+                        <p><strong>Total: ${sale.total.toLocaleString()} RWF</strong></p>
+                        <p>Payment Method: ${sale.paymentMethod.toUpperCase()}</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px; border-top: 1px solid #ddd; padding-top: 15px;">
+                        <p>Thank you for your business!</p>
+                        <p><small>${shop.shop_name} - ${shop.phone}</small></p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;" class="no-print">
+                    <button onclick="window.print()" class="btn">🖨️ Print Invoice</button>
+                    <button onclick="closeModal()" class="btn-secondary">Close</button>
+                </div>
+            `;
+        }
+
+        // ===== COMPLETE INVENTORY MANAGEMENT =====
+        function renderInventory() {
+            return `
+                <div class="card">
+                    <h2>📦 Inventory Management</h2>
+                    <button onclick="showAddProductForm()" style="margin: 10px 0;">➕ Add New Product</button>
+                </div>
+
+                <div class="card">
+                    <h3>Product List</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${products.map(product => `
+                                    <tr>
+                                        <td>
+                                            <strong>${product.name}</strong><br>
+                                            <small style="color: #7f8c8d;">${product.category}</small>
+                                        </td>
+                                        <td>${product.price.toLocaleString()} RWF</td>
+                                        <td>${product.stock}</td>
+                                        <td>
+                                            <span style="color: ${product.stock < 10 ? '#e74c3c' : product.stock < 20 ? '#f39c12' : '#2ecc71'}">
+                                                ${product.stock < 10 ? 'Low Stock' : product.stock < 20 ? 'Medium' : 'Good'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button onclick="editProduct(${product.id})" style="padding: 5px 10px; margin: 2px;">✏️</button>
+                                            <button onclick="updateStock(${product.id})" style="padding: 5px 10px; margin: 2px;">📥</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                ${renderLowStockAlert()}
+            `;
+        }
+
+        function renderLowStockAlert() {
+            const lowStock = products.filter(p => p.stock < 10);
+            if (lowStock.length === 0) return '';
+
+            return `
+                <div class="card" style="border-left: 4px solid #e74c3c;">
+                    <h3 style="color: #e74c3c;">⚠️ Low Stock Alert</h3>
+                    ${lowStock.map(product => `
+                        <p>${product.name} - Only ${product.stock} left!</p>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showAddProductForm() {
+            const productName = prompt('Enter product name:');
+            if (!productName) return;
+
+            const productPrice = parseFloat(prompt('Enter product price (RWF):'));
+            if (!productPrice || isNaN(productPrice)) return;
+
+            const initialStock = parseInt(prompt('Enter initial stock quantity:')) || 0;
+
+            const newProduct = {
+                id: Date.now(),
+                name: productName,
+                price: productPrice,
+                stock: initialStock,
+                category: 'general'
+            };
+
+            products.push(newProduct);
+            saveData();
+            loadPage('inventory');
+            alert('Product added successfully!');
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const newPrice = parseFloat(prompt(`Enter new price for ${product.name}:`, product.price));
+            if (newPrice && !isNaN(newPrice)) {
+                product.price = newPrice;
+                saveData();
+                loadPage('inventory');
+                alert('Price updated successfully!');
+            }
+        }
+
+        function updateStock(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const addStock = parseInt(prompt(`Add stock quantity for ${product.name}:`, '0'));
+            if (addStock && !isNaN(addStock)) {
+                product.stock += addStock;
+                saveData();
+                loadPage('inventory');
+                alert(`Stock updated! New quantity: ${product.stock}`);
+            }
+        }
+
+        // ===== ENHANCED DEBT MANAGEMENT =====
+        function renderDebts() {
+            const totalDebts = debts.reduce((sum, debt) => sum + (debt.amount || 0), 0);
+            const pendingDebts = debts.filter(d => d.status === 'pending');
+
+            return `
+                <div class="card">
+                    <h2>👥 Debt Management</h2>
+                    <p>Total Outstanding: <strong>${totalDebts.toLocaleString()} RWF</strong></p>
+                    <div class="quick-actions">
+                        <button onclick="showAddDebtForm()">➕ Record New Debt</button>
+                        <button onclick="showAddToExistingDebt()">📝 Add to Existing Debt</button>
+                        <button onclick="exportDebtsPDF()">📄 Export Debt Report</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Active Debts</h3>
+                    ${pendingDebts.length === 0 ? 
+                        '<p style="text-align: center; color: #7f8c8d; padding: 20px;">No active debts</p>' : 
+                        renderDebtsList(pendingDebts)}
+                </div>
+            `;
+        }
+
+        function renderDebtsList(debtList) {
+            return `
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Reason</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${debtList.map(debt => `
+                                <tr>
+                                    <td>
+                                        <strong>${debt.customerName}</strong><br>
+                                        <small>${debt.customerPhone || 'No phone'}</small>
+                                    </td>
+                                    <td>
+                                        <strong>${(debt.amount || 0).toLocaleString()} RWF</strong>
+                                        ${debt.history && debt.history.length > 0 ? 
+                                            `<br><small style="color: #7f8c8d;">Updated: ${debt.lastUpdated || debt.date}</small>` : ''}
+                                    </td>
+                                    <td>${debt.date}</td>
+                                    <td>${debt.reason || 'N/A'}</td>
+                                    <td>
+                                        <button onclick="recordPayment(${debt.id})" style="padding: 5px 10px; margin: 2px;">💰 Pay</button>
+                                        <button onclick="sendDebtReminder(${debt.id})" style="padding: 5px 10px; margin: 2px; background: #3498db;">📱 SMS</button>
+                                        <button onclick="showDebtHistory(${debt.id})" style="padding: 5px 10px; margin: 2px; background: #95a5a6;">📊 History</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function showAddToExistingDebt() {
+            const pendingDebts = debts.filter(d => d.status === 'pending');
+            
+            if (pendingDebts.length === 0) {
+                alert('No existing debts found. Please create a new debt first.');
+                return;
+            }
+
+            let debtOptions = pendingDebts.map(debt => 
+                `<option value="${debt.id}">${debt.customerName} - ${debt.amount.toLocaleString()} RWF</option>`
+            ).join('');
+
+            const formHTML = `
+                <div class="modal-overlay active">
+                    <div class="modal-content">
+                        <h3>📝 Add to Existing Debt</h3>
+                        <div class="form-group">
+                            <label>Select Customer</label>
+                            <select id="existing-debt-select" style="width: 100%; padding: 10px; margin: 10px 0;">
+                                ${debtOptions}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Additional Amount (RWF)</label>
+                            <input type="number" id="additional-amount" placeholder="Enter amount" style="width: 100%; padding: 10px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Reason (Optional)</label>
+                            <input type="text" id="debt-reason" placeholder="Reason for additional debt" style="width: 100%; padding: 10px;">
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn" onclick="addToExistingDebt()">Add to Debt</button>
+                            <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', formHTML);
+        }
+
+        function addToExistingDebt() {
+            const debtId = parseInt(document.getElementById('existing-debt-select').value);
+            const additionalAmount = parseFloat(document.getElementById('additional-amount').value);
+            const reason = document.getElementById('debt-reason').value;
+
+            if (!additionalAmount || isNaN(additionalAmount)) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            const debt = debts.find(d => d.id === debtId);
+            if (debt) {
+                debt.amount += additionalAmount;
+                debt.lastUpdated = new Date().toLocaleDateString('en-RW');
+                
+                // Add to debt history
+                if (!debt.history) debt.history = [];
+                debt.history.push({
+                    date: new Date().toLocaleString('en-RW'),
+                    amount: additionalAmount,
+                    type: 'added',
+                    reason: reason
+                });
+
+                saveData();
+                closeModal();
+                loadPage('debts');
+                alert(`Added ${additionalAmount.toLocaleString()} RWF to ${debt.customerName}'s debt. Total: ${debt.amount.toLocaleString()} RWF`);
+            }
+        }
+
+        function showDebtHistory(debtId) {
+            const debt = debts.find(d => d.id === debtId);
+            if (!debt) return;
+
+            let historyHTML = `<h3>Debt History - ${debt.customerName}</h3>`;
+            historyHTML += `<p>Current Total: <strong>${debt.amount.toLocaleString()} RWF</strong></p>`;
+            
+            if (debt.history && debt.history.length > 0) {
+                historyHTML += '<div class="debt-history">';
+                debt.history.forEach(entry => {
+                    historyHTML += `
+                        <div class="history-item">
+                            <div>
+                                <strong>${entry.date}</strong><br>
+                                <small>${entry.reason || 'No reason provided'}</small>
+                            </div>
+                            <div style="color: ${entry.type === 'added' ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">
+                                ${entry.type === 'added' ? '+' : '-'} ${entry.amount.toLocaleString()} RWF
+                            </div>
+                        </div>
+                    `;
+                });
+                historyHTML += '</div>';
+            } else {
+                historyHTML += '<p>No history available</p>';
+            }
+
+            historyHTML += '<button onclick="closeModal()" class="btn" style="margin-top: 15px;">Close</button>';
+            
+            showModal(historyHTML);
+        }
+
+        function sendDebtReminder(debtId) {
+            const debt = debts.find(d => d.id === debtId);
+            if (!debt || !debt.customerPhone) {
+                alert('No phone number available for this customer');
+                return;
+            }
+
+            const message = `Dear ${debt.customerName}, this is a friendly reminder from ${currentShop?.shop_name || 'Our Shop'}. Your outstanding debt is ${(debt.amount || 0).toLocaleString()} RWF. Thank you!`;
+            
+            // Create SMS link
+            const smsLink = `sms:${debt.customerPhone}?body=${encodeURIComponent(message)}`;
+            
+            // Open messaging app
+            window.open(smsLink, '_blank');
+            
+            alert(`SMS reminder ready to send to ${debt.customerPhone}`);
+        }
+
+        function showAddDebtForm() {
+            const customerName = prompt('Enter customer name:');
+            if (!customerName) return;
+
+            const amount = parseFloat(prompt('Enter debt amount (RWF):'));
+            if (!amount || isNaN(amount)) return;
+
+            const customerPhone = prompt('Enter customer phone (optional):');
+            const reason = prompt('Enter reason for debt:') || 'General';
+
+            const newDebt = {
+                id: Date.now(),
+                customerName: customerName,
+                customerPhone: customerPhone,
+                amount: amount,
+                date: new Date().toLocaleDateString('en-RW'),
+                status: 'pending',
+                reason: reason,
+                history: [{
+                    date: new Date().toLocaleString('en-RW'),
+                    amount: amount,
+                    type: 'added',
+                    reason: reason
+                }]
+            };
+
+            debts.push(newDebt);
+            saveData();
+            loadPage('debts');
+            alert('Debt recorded successfully!');
+        }
+
+        function recordPayment(debtId) {
+            const debt = debts.find(d => d.id === debtId);
+            if (!debt) return;
+
+            const paymentAmount = parseFloat(prompt(`Enter payment amount for ${debt.customerName} (Debt: ${debt.amount} RWF):`, debt.amount.toString()));
+            
+            if (paymentAmount && !isNaN(paymentAmount)) {
+                if (paymentAmount >= debt.amount) {
+                    debt.status = 'paid';
+                    // Add payment to history
+                    if (!debt.history) debt.history = [];
+                    debt.history.push({
+                        date: new Date().toLocaleString('en-RW'),
+                        amount: paymentAmount,
+                        type: 'payment',
+                        reason: 'Full payment - debt cleared'
+                    });
+                    alert('Debt fully paid!');
+                } else {
+                    debt.amount -= paymentAmount;
+                    // Add partial payment to history
+                    if (!debt.history) debt.history = [];
+                    debt.history.push({
+                        date: new Date().toLocaleString('en-RW'),
+                        amount: paymentAmount,
+                        type: 'payment',
+                        reason: 'Partial payment'
+                    });
+                    alert(`Payment recorded! Remaining debt: ${debt.amount} RWF`);
+                }
+                debt.lastUpdated = new Date().toLocaleDateString('en-RW');
+                saveData();
+                loadPage('debts');
+            }
+        }
+
+        // ===== ADMIN/SETTINGS =====
+        function renderAdmin() {
+            const totalSalesAmount = sales.reduce((sum, sale) => sum + (sale.total || 0), 0);
+            const pendingDebtsCount = debts.filter(d => d.status === 'pending').length;
+
+            return `
+                <div class="card">
+                    <h2>⚙️ Shop Settings</h2>
+                    <p>Shop: <strong>${currentShop?.shop_name || 'N/A'}</strong></p>
+                    <p>Owner: <strong>${currentShop?.owner_name || 'N/A'}</strong></p>
+                    <p>Phone: <strong>${currentShop?.phone || 'N/A'}</strong></p>
+                    
+                    <div class="export-section">
+                        <h3>📊 Export Reports</h3>
+                        <div class="export-buttons">
+                            <button onclick="exportStockPDF()">📦 Stock Report</button>
+                            <button onclick="exportSalesPDF()">💰 Sales Report</button>
+                            <button onclick="exportDebtsPDF()">👥 Debts Report</button>
+                            <button onclick="exportDailyReport()">📅 Daily Report</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h4>📈 Business Summary</h4>
+                        <p>Total Products: <strong>${products.length}</strong></p>
+                        <p>Total Sales: <strong>${totalSalesAmount.toLocaleString()} RWF</strong></p>
+                        <p>Active Debts: <strong>${pendingDebtsCount}</strong></p>
+                    </div>
+                    
+                    <div class="password-form">
+                        <h3>Change Password</h3>
+                        <input type="password" id="current-password" placeholder="Current PIN">
+                        <input type="password" id="new-password" placeholder="New PIN (4 digits)">
+                        <input type="password" id="confirm-password" placeholder="Confirm New PIN">
+                        <button onclick="changePassword()" style="margin-top: 10px;">Change Password</button>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <button onclick="exportData()" style="margin: 5px;">📤 Export All Data</button>
+                        <button onclick="resetData()" style="margin: 5px; background: #e74c3c;">🔄 Reset Data</button>
+                    </div>
+                    
+                    <button onclick="logout()" style="background: #e74c3c; margin-top: 20px;">🚪 Logout</button>
+                </div>
+            `;
+        }
+
+        function changePassword() {
+            const currentPin = document.getElementById('current-password')?.value;
+            const newPin = document.getElementById('new-password')?.value;
+            const confirmPin = document.getElementById('confirm-password')?.value;
+            
+            if (!currentPin || !newPin || !confirmPin) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            if (currentPin !== currentShop?.pin_code) {
+                alert('Current PIN is incorrect');
+                return;
+            }
+            
+            if (newPin.length !== 4 || !/^\d+$/.test(newPin)) {
+                alert('New PIN must be 4 digits');
+                return;
+            }
+            
+            if (newPin !== confirmPin) {
+                alert('New PINs do not match');
+                return;
+            }
+            
+            // Update PIN in the shop data
+            currentShop.pin_code = newPin;
+            saveData();
+            
+            alert('Password changed successfully!');
+            
+            // Clear the form
+            document.getElementById('current-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+        }
+
+        function exportData() {
+            const data = {
+                products: products,
+                sales: sales,
+                debts: debts,
+                exportDate: new Date().toLocaleString()
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `shopmaster-backup-${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            
+            alert('Data exported successfully!');
+        }
+
+        function resetData() {
+            if (confirm('⚠️ Are you sure? This will reset all sales and debts data.')) {
+                sales = [];
+                debts = [];
+                currentSale = [];
+                saveData();
+                alert('Data reset successfully!');
+                loadPage('dashboard');
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                currentShop = null;
+                currentSale = [];
+                document.getElementById('app-screen').classList.remove('active');
+                document.getElementById('login-screen').classList.add('active');
+                document.getElementById('pin-code').value = '';
+            }
+        }
+
+        // ===== EXPORT REPORT FUNCTIONS =====
+        function exportStockPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Title
+                doc.setFontSize(20);
+                doc.text('STOCK REPORT', 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text(`Shop: ${currentShop?.shop_name || 'Shop'}`, 105, 25, { align: 'center' });
+                doc.text(`Date: ${new Date().toLocaleDateString('en-RW')}`, 105, 32, { align: 'center' });
+                
+                // Table using autoTable
+                doc.autoTable({
+                    head: [['Product', 'Price', 'Stock', 'Status', 'Value']],
+                    body: products.map(product => [
+                        product.name,
+                        product.price.toLocaleString() + ' RWF',
+                        product.stock.toString(),
+                        product.stock < 10 ? 'LOW' : product.stock < 20 ? 'MEDIUM' : 'GOOD',
+                        (product.price * product.stock).toLocaleString() + ' RWF'
+                    ]),
+                    startY: 45,
+                    styles: { fontSize: 10 },
+                    headStyles: { fillColor: [46, 204, 113] }
+                });
+                
+                // Summary
+                const totalProducts = products.length;
+                const totalStockValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+                const lowStockCount = products.filter(p => p.stock < 10).length;
+                
+                const finalY = doc.lastAutoTable.finalY + 10;
+                doc.setFontSize(14);
+                doc.text('SUMMARY', 15, finalY);
+                doc.setFontSize(12);
+                doc.text(`Total Products: ${totalProducts}`, 15, finalY + 10);
+                doc.text(`Total Stock Value: ${totalStockValue.toLocaleString()} RWF`, 15, finalY + 17);
+                doc.text(`Low Stock Items: ${lowStockCount}`, 15, finalY + 24);
+                
+                // Save PDF
+                doc.save(`stock-report-${currentShop?.shop_name || 'shop'}-${new Date().toISOString().split('T')[0]}.pdf`);
+                alert('Stock report exported successfully!');
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Error exporting stock report. Please try again.');
+            }
+        }
+
+        function exportSalesPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Title
+                doc.setFontSize(20);
+                doc.text('SALES REPORT', 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text(`Shop: ${currentShop?.shop_name || 'Shop'}`, 105, 25, { align: 'center' });
+                doc.text(`Period: ${new Date().toLocaleDateString('en-RW')}`, 105, 32, { align: 'center' });
+                
+                // Sales summary
+                const totalSales = sales.reduce((sum, sale) => sum + (sale.total || 0), 0);
+                const totalTransactions = sales.length;
+                const averageSale = totalTransactions > 0 ? totalSales / totalTransactions : 0;
+                
+                doc.setFontSize(14);
+                doc.text('SALES SUMMARY', 15, 50);
+                doc.setFontSize(12);
+                doc.text(`Total Sales: ${totalSales.toLocaleString()} RWF`, 15, 60);
+                doc.text(`Total Transactions: ${totalTransactions}`, 15, 67);
+                doc.text(`Average Sale: ${averageSale.toLocaleString()} RWF`, 15, 74);
+                
+                // Recent sales table
+                if (sales.length > 0) {
+                    const recentSales = sales.slice(-10).reverse();
+                    doc.autoTable({
+                        head: [['Date', 'Amount', 'Payment Method']],
+                        body: recentSales.map(sale => [
+                            sale.date,
+                            sale.total.toLocaleString() + ' RWF',
+                            sale.paymentMethod.toUpperCase()
+                        ]),
+                        startY: 85,
+                        styles: { fontSize: 10 },
+                        headStyles: { fillColor: [52, 152, 219] }
+                    });
+                }
+                
+                doc.save(`sales-report-${currentShop?.shop_name || 'shop'}-${new Date().toISOString().split('T')[0]}.pdf`);
+                alert('Sales report exported successfully!');
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Error exporting sales report. Please try again.');
+            }
+        }
+
+        function exportDebtsPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Title
+                doc.setFontSize(20);
+                doc.text('DEBTORS REPORT', 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text(`Shop: ${currentShop?.shop_name || 'Shop'}`, 105, 25, { align: 'center' });
+                doc.text(`Date: ${new Date().toLocaleDateString('en-RW')}`, 105, 32, { align: 'center' });
+                
+                // Debt summary
+                const pendingDebts = debts.filter(d => d.status === 'pending');
+                const totalDebts = pendingDebts.reduce((sum, debt) => sum + (debt.amount || 0), 0);
+                
+                doc.setFontSize(14);
+                doc.text('DEBT SUMMARY', 15, 50);
+                doc.setFontSize(12);
+                doc.text(`Total Outstanding: ${totalDebts.toLocaleString()} RWF`, 15, 60);
+                doc.text(`Number of Debtors: ${pendingDebts.length}`, 15, 67);
+                
+                // Debtors table
+                if (pendingDebts.length > 0) {
+                    doc.autoTable({
+                        head: [['Customer Name', 'Phone', 'Amount', 'Date']],
+                        body: pendingDebts.map(debt => [
+                            debt.customerName,
+                            debt.customerPhone || 'N/A',
+                            debt.amount.toLocaleString() + ' RWF',
+                            debt.date
+                        ]),
+                        startY: 80,
+                        styles: { fontSize: 10 },
+                        headStyles: { fillColor: [231, 76, 60] }
+                    });
+                }
+                
+                doc.save(`debts-report-${currentShop?.shop_name || 'shop'}-${new Date().toISOString().split('T')[0]}.pdf`);
+                alert('Debts report exported successfully!');
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Error exporting debts report. Please try again.');
+            }
+        }
+
+        function exportDailyReport() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const today = new Date().toLocaleDateString('en-RW');
+                const todaySales = sales.filter(sale => sale.date === today);
+                const todayRevenue = todaySales.reduce((sum, sale) => sum + (sale.total || 0), 0);
+                
+                // Title
+                doc.setFontSize(20);
+                doc.text('DAILY REPORT', 105, 15, { align: 'center' });
+                doc.setFontSize(12);
+                doc.text(`Shop: ${currentShop?.shop_name || 'Shop'}`, 105, 25, { align: 'center' });
+                doc.text(`Date: ${today}`, 105, 32, { align: 'center' });
+                
+                // Daily summary
+                doc.setFontSize(14);
+                doc.text('DAILY SUMMARY', 15, 50);
+                doc.setFontSize(12);
+                doc.text(`Total Sales: ${todaySales.length}`, 15, 60);
+                doc.text(`Total Revenue: ${todayRevenue.toLocaleString()} RWF`, 15, 67);
+                
+                // Today's sales
+                if (todaySales.length > 0) {
+                    doc.autoTable({
+                        head: [['Time', 'Amount', 'Payment Method']],
+                        body: todaySales.map(sale => [
+                            new Date(sale.timestamp).toLocaleTimeString(),
+                            sale.total.toLocaleString() + ' RWF',
+                            sale.paymentMethod.toUpperCase()
+                        ]),
+                        startY: 80,
+                        styles: { fontSize: 10 },
+                        headStyles: { fillColor: [243, 156, 18] }
+                    });
+                }
+                
+                doc.save(`daily-report-${currentShop?.shop_name || 'shop'}-${new Date().toISOString().split('T')[0]}.pdf`);
+                alert('Daily report exported successfully!');
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Error exporting daily report. Please try again.');
+            }
+        }
+
+        // ===== MODAL UTILITIES =====
+        function showModal(content) {
+            // Close any existing modal first
+            closeModal();
+            
+            const modalHTML = `
+                <div class="modal-overlay active" id="current-modal">
+                    <div class="modal-content">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('current-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                closeModal();
+            }
+        });
+
+        // ===== CALCULATOR FUNCTIONS =====
+        let calculator = {
+            currentInput: '0',
+            previousInput: '',
+            operator: null,
+            waitingForNewInput: false
+        };
+
+        function calculatorInput(number) {
+            if (calculator.waitingForNewInput) {
+                calculator.currentInput = number;
+                calculator.waitingForNewInput = false;
+            } else {
+                calculator.currentInput = calculator.currentInput === '0' ? number : calculator.currentInput + number;
+            }
+            updateCalculatorDisplay();
+        }
+
+        function calculatorOperation(op) {
+            if (calculator.operator !== null && !calculator.waitingForNewInput) {
+                calculatorCalculate();
+            }
+            
+            calculator.previousInput = calculator.currentInput;
+            calculator.operator = op;
+            calculator.waitingForNewInput = true;
+        }
+
+        function calculatorCalculate() {
+            if (calculator.operator === null || calculator.waitingForNewInput) return;
+
+            const prev = parseFloat(calculator.previousInput);
+            const current = parseFloat(calculator.currentInput);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+
+            let result;
+            switch (calculator.operator) {
+                case '+': result = prev + current; break;
+                case '-': result = prev - current; break;
+                case '*': result = prev * current; break;
+                case '/': result = current !== 0 ? prev / current : 'Error'; break;
+                default: return;
+            }
+
+            calculator.currentInput = result.toString();
+            calculator.operator = null;
+            calculator.previousInput = '';
+            calculator.waitingForNewInput = true;
+            updateCalculatorDisplay();
+        }
+
+        function calculatorClear() {
+            calculator.currentInput = '0';
+            calculator.previousInput = '';
+            calculator.operator = null;
+            calculator.waitingForNewInput = false;
+            updateCalculatorDisplay();
+        }
+
+        function calculatorBackspace() {
+            if (calculator.currentInput.length > 1) {
+                calculator.currentInput = calculator.currentInput.slice(0, -1);
+            } else {
+                calculator.currentInput = '0';
+            }
+            updateCalculatorDisplay();
+        }
+
+        function updateCalculatorDisplay() {
+            const display = document.getElementById('calc-display');
+            if (display) {
+                display.value = calculator.currentInput;
+            }
+        }
+
+        function toggleCalculator() {
+            const calculatorEl = document.getElementById('floating-calculator');
+            if (calculatorEl) {
+                calculatorEl.classList.toggle('visible');
+            }
+        }
+
+        function hideCalculator() {
+            const calculatorEl = document.getElementById('floating-calculator');
+            if (calculatorEl) {
+                calculatorEl.classList.remove('visible');
+            }
+        }
+
+        // ===== PWA FUNCTIONALITY =====
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // ===== INITIALIZE =====
+        // Load data on startup
+        loadData();
+        
+        // Check for existing session
+        if (currentShop) {
+            showApp(currentShop);
+        }
+
+        console.log('ShopMaster Pro loaded successfully!');
+        console.log('All features are now working!');
+    </script>
+</body>
+</html>
