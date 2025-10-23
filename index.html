@@ -5,7 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShopMaster Pro - Local Shop MIS</title>
     <!-- PWA Manifest -->
+    <link rel="admin-panel" href="admin-panel.html">
     <link rel="manifest" href="manifest.json">
+    <link rel="bluetooth-printer" href="bluetooth-printer.js">
+    <link rel="momo-manager" href="momo-manager.js">
+    <link rel="printer" href="printer.js">
+    <link rel="supplier-manager" href="supplier-manager.js">
+    <link rel="sw" href="sw.js">
+    <link rel="sync-manager" href="sync-manager.js">
+    <link rel="style" href="style.css">
+    <link rel="app" href="app.js">
     <meta name="theme-color" content="#2ecc71">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -858,6 +867,17 @@
                         <button onclick="printInvoice()" id="print-invoice-btn" style="background: #3498db; margin: 5px 0;" ${currentSale.length === 0 ? 'disabled' : ''}>
                             🖨️ Print Invoice
                         </button>
+                           <div class="hero-buttons">
+                    <a href="printer.js" class="btn btn-primary-custom me-3">Printer</a>
+                    <a href="supplier-manager.js" class="btn btn-outline-custom">manager Suplies</a>
+                       <div class="hero-buttons">
+                    <a href="momo-manager.js" class="btn btn-primary-custom me-3">momo</a>
+                    <a href="calculator.js" class="btn btn-outline-custom">calculator</a>
+                       <div class="hero-buttons">
+                    <a href="bluetooth-printer.js" class="btn btn-primary-custom me-3">bluetooth print</a>
+                    <a href="sync-manager.js" class="btn btn-outline-custom">synconise</a>
+                </div>
+                </div>
                     </div>
                 </div>
 
