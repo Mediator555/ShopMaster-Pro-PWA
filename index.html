@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ShopMaster Pro - Local Shop MIS</title>
+  <title>ShopMaster Pro – Local Shop MIS</title>
 
-  <!-- Manifest for PWA -->
+  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#2ecc71" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -14,16 +14,15 @@
   <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
 
-  <!-- JavaScript Files -->
-  <script src="bluetooth-printer.js" defer></script>
-  <script src="momo-manager.js" defer></script>
+  <!-- JavaScript files -->
+  <script src="bluetooth-printer.js" defer> bluetooth</script>
+  <script src="momo-manager.js" defer>momo</script>
   <script src="printer.js" defer></script>
-  <script src="supplier-manager.js" defer></script>
+  <script src="supplier-manager.js" defer>supplier</script>
   <script src="sw.js" defer></script>
   <script src="sync-manager.js" defer></script>
   <script src="app.js" defer></script>
-
-    <style>
+<style>
         /* Reset and Base Styles */
         * {
             margin: 0;
@@ -872,12 +871,7 @@
                         <button onclick="printInvoice()" id="print-invoice-btn" style="background: #3498db; margin: 5px 0;" ${currentSale.length === 0 ? 'disabled' : ''}>
                             🖨️ Print Invoice
                         </button>
-         <div class="card">
-    <a href="#" onclick="app.printer.printLastInvoice()">Printer</a>
-<a href="#" onclick="app.supplierManager.open()">Supplies</a>
-<a href="#" onclick="app.momoManager.show()">MoMo</a>
 
-     </div>
             <div class="card">
                     <h3>📦 Available Products</h3>
                     <div class="product-grid">
